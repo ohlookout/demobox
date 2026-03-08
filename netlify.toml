@@ -1,0 +1,13 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/callback"
+  to = "/.netlify/functions/callback"
+  status = 200
+
+[[redirects]]
+  from = "/refresh"
+  to = "/.netlify/functions/refresh"
+  status = 200

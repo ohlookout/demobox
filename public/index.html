@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEMOBOX</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --cream:   #e8e0d0;
+  --cream2:  #d9d0be;
+  --cream3:  #c8bfac;
+  --paper:   #f2ece0;
+  --orange:  #e8530a;
+  --orange2: #f26b22;
+  --lime:    #8ab800;
+  --lime2:   #a3d400;
+  --ink:     #1a1612;
+  --ink2:    #3a332a;
+  --ink3:    #6b6055;
+  --ink4:    #9a9088;
+  --red:     #d42b1a;
+  --blue:    #1a6eb5;
+  --blue2:   #e8f0f8;
+  --shadow:  rgba(26,22,18,0.18);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--cream2);
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+.device {
+  max-width: 900px;
+  margin: 2rem auto;
+  background: var(--paper);
+  border-radius: 18px;
+  box-shadow: 0 2px 0 var(--cream3), 0 6px 24px var(--shadow), 0 1px 2px rgba(255,255,255,0.8) inset;
+  overflow: hidden;
+  position: relative;
+}
+
+.device::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  border-radius: 18px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.4rem 2rem 1rem;
+  border-bottom: 1.5px solid var(--cream3);
+}
+
+.wordmark { display: flex; flex-direction: column; gap: 1px; }
+.wordmark-main { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 1.65rem; letter-spacing: -0.02em; color: var(--ink); line-height: 1; }
+.wordmark-main span { color: var(--orange); }
+.wordmark-sub { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink4); font-weight: 300; }
+
+.topbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+
+.streak-widget {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: var(--cream2); border: 1.5px solid var(--cream3); border-radius: 10px; padding: 0.5rem 0.9rem;
+}
+.streak-num { font-size: 1.6rem; font-weight: 500; color: var(--orange); line-height: 1; letter-spacing: -0.03em; }
+.streak-meta { display: flex; flex-direction: column; }
+.streak-label { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink4); }
+.streak-sub   { font-size: 0.5rem; color: var(--ink4); }
+.cal-dots { display: flex; gap: 3px; margin-top: 2px; }
+.cal-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--cream3); }
+.cal-dot.done { background: var(--lime); }
+
+/* ── CONNECT SCREEN ── */
+.connect-screen {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 4rem 2rem; text-align: center; gap: 1rem;
+}
+.connect-screen h2 { font-size: 1rem; font-weight: 500; color: var(--ink); }
+.connect-screen p  { font-size: 0.7rem; color: var(--ink4); max-width: 320px; line-height: 1.7; font-weight: 300; }
+
+.btn-connect {
+  font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.8rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--orange); color: var(--paper);
+  border: none; border-radius: 10px; padding: 0.8rem 1.8rem;
+  cursor: pointer; margin-top: 0.5rem;
+  box-shadow: 0 3px 0 #b83e06, 0 5px 12px rgba(232,83,10,0.3);
+  transition: all 0.1s;
+}
+.btn-connect:hover { background: var(--orange2); }
+.btn-connect:active { transform: translateY(2px); box-shadow: 0 1px 0 #b83e06; }
+
+/* ── MAIN GRID ── */
+.main-grid {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+
+.col { padding: 1.6rem 2rem; border-right: 1.5px solid var(--cream3); }
+.col:last-child { border-right: none; }
+
+.section-label {
+  font-size: 0.52rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--ink4); font-weight: 500; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--cream3); }
+
+/* ── DROPBOX STATUS ── */
+.db-bar {
+  display: flex; align-items: center; gap: 0.7rem;
+  background: var(--cream2); border: 1.5px solid var(--cream3); border-radius: 8px;
+  padding: 0.5rem 0.8rem; margin-bottom: 1rem; font-size: 0.65rem;
+}
+.db-led {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--ink4); flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3); transition: all 0.3s;
+}
+.db-led.connected { background: var(--lime2); box-shadow: 0 0 5px var(--lime), inset 0 1px 1px rgba(255,255,255,0.4); }
+.db-led.loading   { background: var(--orange2); animation: blink 0.7s infinite; }
+.db-led.error     { background: var(--red); }
+@keyframes blink { 0%,100%{opacity:1;}50%{opacity:0.25;} }
+
+.db-status { flex: 1; color: var(--ink3); }
+.db-status strong { color: var(--ink); }
+
+.btn-tiny {
+  font-family: 'DM Mono', monospace; font-size: 0.55rem; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.25rem 0.6rem; border-radius: 100px;
+  border: 1.5px solid var(--cream3); background: var(--paper); color: var(--ink3);
+  cursor: pointer; transition: all 0.12s; box-shadow: 0 1px 2px var(--shadow);
+}
+.btn-tiny:hover { border-color: var(--ink3); color: var(--ink); background: var(--cream); }
+.btn-tiny:active { transform: scale(0.96); box-shadow: none; }
+.btn-tiny.danger { color: var(--red); border-color: #e8b0a8; }
+.btn-tiny.danger:hover { background: var(--red); color: var(--paper); border-color: var(--red); }
+
+/* ── SONG LIST ── */
+.song-list { list-style: none; max-height: 260px; overflow-y: auto; margin-bottom: 0.5rem; }
+.song-list::-webkit-scrollbar { width: 3px; }
+.song-list::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 3px; }
+
+.song-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.38rem 0; border-bottom: 1px solid var(--cream2); animation: fadeSlide 0.15s ease; }
+@keyframes fadeSlide { from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:translateX(0);} }
+.song-icon { color: var(--ink4); font-size: 0.55rem; flex-shrink: 0; }
+.song-name { color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.72rem; }
+.song-ext  { font-size: 0.55rem; color: var(--ink4); background: var(--cream2); padding: 0.1rem 0.35rem; border-radius: 4px; }
+.song-count { font-size: 0.6rem; color: var(--ink4); margin-top: 0.6rem; }
+
+/* ── WEEK ── */
+.week-row { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+.week-seg { flex: 1; height: 5px; background: var(--cream2); border-radius: 3px; border: 1px solid var(--cream3); transition: all 0.3s; }
+.week-seg.done { background: var(--lime); border-color: var(--lime); }
+
+/* ── PUNCH BUTTON ── */
+.punch-btn {
+  width: 100%; font-family: 'DM Mono', monospace; font-weight: 500;
+  font-size: 0.9rem; letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--orange); color: var(--paper); border: none; border-radius: 10px;
+  padding: 1rem 1.5rem; cursor: pointer; position: relative; overflow: hidden;
+  box-shadow: 0 3px 0 #b83e06, 0 5px 12px rgba(232,83,10,0.3);
+  transition: all 0.1s; margin-bottom: 1.2rem;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.punch-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.12) 0%, transparent 60%); border-radius: 10px; pointer-events: none; }
+.punch-btn:hover { background: var(--orange2); box-shadow: 0 3px 0 #b83e06, 0 8px 20px rgba(232,83,10,0.4); }
+.punch-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b83e06, 0 2px 6px rgba(232,83,10,0.2); }
+.punch-btn:disabled { background: var(--cream2); color: var(--ink4); box-shadow: 0 2px 0 var(--cream3); cursor: not-allowed; transform: none; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--cream2); border: 1.5px solid var(--cream3); border-radius: 12px;
+  padding: 1.2rem; display: none; animation: popIn 0.25s cubic-bezier(0.175,0.885,0.32,1.275); margin-bottom: 1.2rem;
+}
+.card.visible { display: block; }
+.card.blue-tint { background: var(--blue2); border-color: #b8d0e8; }
+@keyframes popIn { from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);} }
+
+.card-label { font-size: 0.52rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.4rem; font-weight: 500; }
+.card-title { font-family: 'Instrument Serif', serif; font-size: 1.5rem; color: var(--ink); word-break: break-word; line-height: 1.15; margin-bottom: 1rem; }
+
+/* ── AUDIO PLAYER ── */
+.player-row {
+  display: flex; align-items: center; gap: 0.7rem;
+  background: var(--paper); border: 1.5px solid var(--cream3); border-radius: 8px;
+  padding: 0.5rem 0.8rem; margin-bottom: 0.9rem;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+.play-circle {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--blue);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; color: white; flex-shrink: 0;
+  transition: all 0.12s; box-shadow: 0 2px 5px rgba(26,110,181,0.35);
+}
+.play-circle:hover { background: #2280cc; transform: scale(1.06); }
+.play-circle.loading { background: var(--ink4); cursor: wait; }
+.player-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.progress-track { width: 100%; height: 4px; background: var(--cream3); border-radius: 3px; cursor: pointer; }
+.progress-fill  { height: 100%; background: var(--blue); border-radius: 3px; width: 0%; transition: width 0.1s linear; pointer-events: none; }
+.player-time { font-size: 0.58rem; color: var(--ink4); font-weight: 300; }
+
+.action-row { display: flex; gap: 0.5rem; }
+.btn-commit {
+  flex: 1; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.75rem;
+  letter-spacing: 0.05em; text-transform: uppercase; background: var(--lime); color: var(--ink);
+  border: none; border-radius: 8px; padding: 0.65rem 1rem; cursor: pointer;
+  box-shadow: 0 2px 0 #6a9000, 0 4px 10px rgba(138,184,0,0.3); transition: all 0.1s;
+}
+.btn-commit:hover { background: var(--lime2); }
+.btn-commit:active { transform: translateY(1px); box-shadow: 0 1px 0 #6a9000; }
+.btn-ghost {
+  font-family: 'DM Mono', monospace; font-weight: 400; font-size: 0.65rem;
+  letter-spacing: 0.08em; text-transform: uppercase; background: transparent;
+  color: var(--ink4); border: 1.5px solid var(--cream3); border-radius: 8px;
+  padding: 0.5rem 0.8rem; cursor: pointer; transition: all 0.12s;
+}
+.btn-ghost:hover { border-color: var(--ink3); color: var(--ink); }
+
+/* ── SESSION CARD ── */
+.session-song { font-family: 'Instrument Serif', serif; font-size: 1.6rem; color: var(--ink); line-height: 1.1; word-break: break-word; margin-bottom: 0.2rem; }
+.session-time-label { font-size: 0.55rem; color: var(--ink4); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 1rem; }
+
+.mini-player-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  background: var(--paper); border: 1.5px solid var(--cream3); border-radius: 7px;
+  padding: 0.4rem 0.7rem; margin-bottom: 0.9rem;
+}
+.mini-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink4); white-space: nowrap; }
+.mini-circle {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--cream2);
+  border: 1.5px solid var(--cream3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; color: var(--ink3); flex-shrink: 0; transition: all 0.12s;
+}
+.mini-circle:hover { background: var(--cream3); color: var(--ink); }
+.mini-track { flex: 1; height: 3px; background: var(--cream3); border-radius: 3px; cursor: pointer; }
+.mini-fill  { height: 100%; background: var(--ink3); border-radius: 3px; width: 0%; transition: width 0.1s linear; pointer-events: none; }
+.mini-t     { font-size: 0.52rem; color: var(--ink4); white-space: nowrap; }
+
+.modifier-card {
+  background: var(--ink); color: var(--paper); border-radius: 9px;
+  padding: 0.9rem 1rem; margin-bottom: 1rem; position: relative; overflow: hidden;
+}
+.modifier-card::before { content: '⚡'; position: absolute; right: 0.8rem; top: 0.6rem; font-size: 1.2rem; opacity: 0.12; }
+.modifier-card-label { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--orange2); margin-bottom: 0.35rem; font-weight: 500; }
+.modifier-card-text  { font-size: 0.75rem; line-height: 1.6; color: #e8e0d0; font-weight: 300; }
+
+/* ── TIMER ── */
+.timer-block { text-align: center; margin: 0.8rem 0 1rem; }
+.timer-display { font-family: 'DM Mono', monospace; font-size: 4rem; font-weight: 300; letter-spacing: -0.02em; color: var(--ink); line-height: 1; transition: color 0.3s; }
+.timer-display.warning { color: var(--orange); }
+.timer-display.danger  { color: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.45;} }
+.timer-btns { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.7rem; }
+.btn-timer {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 0.45rem 1rem;
+  border-radius: 100px; border: 1.5px solid var(--cream3); background: var(--paper);
+  color: var(--ink3); cursor: pointer; transition: all 0.12s; box-shadow: 0 1px 3px var(--shadow);
+}
+.btn-timer:hover { border-color: var(--ink3); color: var(--ink); }
+.btn-timer.active { background: var(--lime); border-color: var(--lime); color: var(--ink); box-shadow: 0 2px 0 #6a9000; }
+
+.btn-done {
+  width: 100%; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 0.78rem;
+  letter-spacing: 0.08em; text-transform: uppercase; background: var(--ink); color: var(--paper);
+  border: none; border-radius: 9px; padding: 0.8rem; cursor: pointer; transition: all 0.12s;
+  box-shadow: 0 3px 0 #000, 0 5px 12px rgba(0,0,0,0.2);
+}
+.btn-done:hover { background: var(--ink2); }
+.btn-done:active { transform: translateY(2px); box-shadow: 0 1px 0 #000; }
+
+/* ── COACH ── */
+.coach-block { border-top: 1.5px solid var(--cream3); padding-top: 1.2rem; margin-top: 0.5rem; }
+.coach-text { font-size: 0.7rem; line-height: 1.75; color: var(--ink2); font-style: italic; min-height: 2.8rem; transition: opacity 0.25s; font-weight: 300; }
+.coach-text strong { color: var(--orange); font-style: normal; font-weight: 500; }
+.btn-coach-refresh { font-family: 'DM Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; background: none; border: none; color: var(--ink4); cursor: pointer; margin-top: 0.5rem; text-decoration: underline; padding: 0; }
+.btn-coach-refresh:hover { color: var(--ink); }
+
+/* ── LOG ── */
+.log-strip { position: relative; z-index: 1; border-top: 1.5px solid var(--cream3); padding: 1.4rem 2rem; background: var(--cream2); border-radius: 0 0 18px 18px; }
+.log-list { list-style: none; max-height: 130px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.3rem; }
+.log-list::-webkit-scrollbar { width: 3px; }
+.log-list::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 3px; }
+.log-item { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; }
+.log-date { font-size: 0.58rem; color: var(--ink4); min-width: 80px; font-weight: 300; }
+.log-song { font-size: 0.65rem; color: var(--ink); }
+.log-mod  { font-size: 0.58rem; color: var(--orange); font-weight: 300; }
+.empty-state { font-size: 0.65rem; color: var(--ink4); font-style: italic; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem;
+  background: var(--ink); color: var(--paper);
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; font-weight: 500;
+  padding: 0.7rem 1.1rem; border-radius: 9px; max-width: 280px; z-index: 9999;
+  transform: translateY(12px); opacity: 0;
+  transition: all 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.orange { background: var(--orange); }
+.toast.lime   { background: var(--lime); color: var(--ink); }
+.toast.red    { background: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="device">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="wordmark">
+      <div class="wordmark-main">DEMO<span>BOX</span></div>
+      <div class="wordmark-sub">3× / week &nbsp;·&nbsp; 1 hour &nbsp;·&nbsp; fucking go</div>
+    </div>
+    <div class="topbar-right">
+      <div class="streak-widget">
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-meta">
+          <span class="streak-label">Streak</span>
+          <span class="streak-sub">sessions</span>
+          <div class="cal-dots" id="calDots"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNECT SCREEN (shown when not authed) -->
+  <div class="connect-screen" id="connectScreen">
+    <h2>Connect your Dropbox</h2>
+    <p>DEMOBOX needs access to your Dropbox folder to pull your song ideas. This only happens once — after that it's permanent.</p>
+    <button class="btn-connect" onclick="startAuth()">Connect Dropbox →</button>
+  </div>
+
+  <!-- MAIN APP (hidden until authed) -->
+  <div id="mainApp" style="display:none;">
+    <div class="main-grid">
+
+      <!-- LEFT: QUEUE -->
+      <div class="col">
+        <div class="section-label">Dropbox Queue</div>
+        <div class="db-bar">
+          <div class="db-led" id="dbDot"></div>
+          <div class="db-status" id="dbStatus">Connecting…</div>
+          <button class="btn-tiny" onclick="loadDropboxFiles()">↻ sync</button>
+          <button class="btn-tiny danger" onclick="disconnect()" title="Disconnect Dropbox">✕</button>
+        </div>
+        <ul class="song-list" id="songList"></ul>
+        <div class="song-count" id="songCount"></div>
+        <div style="margin-top:1.6rem;">
+          <div class="section-label">This Week</div>
+          <div id="weekProgress" style="font-size:0.62rem;color:var(--ink4);">0 / 3 sessions</div>
+          <div class="week-row">
+            <div class="week-seg" id="w1"></div>
+            <div class="week-seg" id="w2"></div>
+            <div class="week-seg" id="w3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SESSION -->
+      <div class="col">
+        <div class="section-label">Session</div>
+
+        <button class="punch-btn" id="rollBtn" onclick="rollDice()" disabled>
+          <svg width="26" height="22" viewBox="0 0 13 11" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+            <rect x="3" y="0" width="1" height="1" fill="#ff8c42"/><rect x="4" y="0" width="1" height="1" fill="#ff8c42"/><rect x="5" y="0" width="1" height="1" fill="#ff8c42"/><rect x="6" y="0" width="1" height="1" fill="#ff8c42"/><rect x="7" y="0" width="1" height="1" fill="#ff8c42"/><rect x="8" y="0" width="1" height="1" fill="#ff8c42"/>
+            <rect x="2" y="1" width="1" height="1" fill="#ff8c42"/><rect x="3" y="1" width="1" height="1" fill="#ffa060"/><rect x="4" y="1" width="1" height="1" fill="#ffa060"/><rect x="5" y="1" width="1" height="1" fill="#ffa060"/><rect x="6" y="1" width="1" height="1" fill="#ffa060"/><rect x="7" y="1" width="1" height="1" fill="#ffa060"/><rect x="8" y="1" width="1" height="1" fill="#ff8c42"/><rect x="9" y="1" width="1" height="1" fill="#ff8c42"/>
+            <rect x="1" y="2" width="1" height="1" fill="#ff8c42"/><rect x="2" y="2" width="1" height="1" fill="#ffa060"/><rect x="3" y="2" width="1" height="1" fill="#ffa060"/><rect x="4" y="2" width="1" height="1" fill="#ffc090"/><rect x="5" y="2" width="1" height="1" fill="#ffa060"/><rect x="6" y="2" width="1" height="1" fill="#ffa060"/><rect x="7" y="2" width="1" height="1" fill="#ffa060"/><rect x="8" y="2" width="1" height="1" fill="#ff8c42"/><rect x="9" y="2" width="1" height="1" fill="#e8530a"/><rect x="10" y="2" width="1" height="1" fill="#e8530a"/>
+            <rect x="1" y="3" width="1" height="1" fill="#ff8c42"/><rect x="2" y="3" width="1" height="1" fill="#ffa060"/><rect x="3" y="3" width="1" height="1" fill="#ffc090"/><rect x="4" y="3" width="1" height="1" fill="#ffa060"/><rect x="5" y="3" width="1" height="1" fill="#ffa060"/><rect x="6" y="3" width="1" height="1" fill="#ffa060"/><rect x="7" y="3" width="1" height="1" fill="#ff8c42"/><rect x="8" y="3" width="1" height="1" fill="#e8530a"/><rect x="9" y="3" width="1" height="1" fill="#c04008"/><rect x="10" y="3" width="1" height="1" fill="#e8530a"/><rect x="11" y="3" width="1" height="1" fill="#e8530a"/>
+            <rect x="1" y="4" width="1" height="1" fill="#e8530a"/><rect x="2" y="4" width="1" height="1" fill="#ff8c42"/><rect x="3" y="4" width="1" height="1" fill="#e85820"/><rect x="4" y="4" width="1" height="1" fill="#c04008"/><rect x="5" y="4" width="1" height="1" fill="#c04008"/><rect x="6" y="4" width="1" height="1" fill="#c04008"/><rect x="7" y="4" width="1" height="1" fill="#e8530a"/><rect x="8" y="4" width="1" height="1" fill="#c04008"/><rect x="9" y="4" width="1" height="1" fill="#c04008"/><rect x="10" y="4" width="1" height="1" fill="#e8530a"/><rect x="11" y="4" width="1" height="1" fill="#e8530a"/>
+            <rect x="1" y="5" width="1" height="1" fill="#e8530a"/><rect x="2" y="5" width="1" height="1" fill="#ff8c42"/><rect x="3" y="5" width="1" height="1" fill="#ffa060"/><rect x="4" y="5" width="1" height="1" fill="#ffa060"/><rect x="5" y="5" width="1" height="1" fill="#ffa060"/><rect x="6" y="5" width="1" height="1" fill="#ffa060"/><rect x="7" y="5" width="1" height="1" fill="#ff8c42"/><rect x="8" y="5" width="1" height="1" fill="#e8530a"/><rect x="9" y="5" width="1" height="1" fill="#e8530a"/><rect x="10" y="5" width="1" height="1" fill="#e8530a"/><rect x="11" y="5" width="1" height="1" fill="#c04008"/>
+            <rect x="2" y="6" width="1" height="1" fill="#e8530a"/><rect x="3" y="6" width="1" height="1" fill="#ff8c42"/><rect x="4" y="6" width="1" height="1" fill="#ffa060"/><rect x="5" y="6" width="1" height="1" fill="#ffa060"/><rect x="6" y="6" width="1" height="1" fill="#ff8c42"/><rect x="7" y="6" width="1" height="1" fill="#e8530a"/><rect x="8" y="6" width="1" height="1" fill="#e8530a"/><rect x="9" y="6" width="1" height="1" fill="#c04008"/>
+            <rect x="3" y="7" width="1" height="1" fill="#e8530a"/><rect x="4" y="7" width="1" height="1" fill="#e8530a"/><rect x="5" y="7" width="1" height="1" fill="#e8530a"/><rect x="6" y="7" width="1" height="1" fill="#e8530a"/><rect x="7" y="7" width="1" height="1" fill="#c04008"/>
+            <rect x="3" y="8" width="1" height="1" fill="#c04008"/><rect x="4" y="8" width="1" height="1" fill="#ff8c42"/><rect x="5" y="8" width="1" height="1" fill="#ff8c42"/><rect x="6" y="8" width="1" height="1" fill="#c04008"/>
+            <rect x="3" y="9" width="1" height="1" fill="#c04008"/><rect x="4" y="9" width="1" height="1" fill="#e8530a"/><rect x="5" y="9" width="1" height="1" fill="#e8530a"/><rect x="6" y="9" width="1" height="1" fill="#c04008"/>
+            <rect x="4" y="10" width="1" height="1" fill="#c04008"/><rect x="5" y="10" width="1" height="1" fill="#c04008"/>
+          </svg>
+          Punch a song in the mouth
+        </button>
+
+        <!-- PRE-LISTEN -->
+        <div class="card blue-tint" id="prelistenCard">
+          <div class="card-label">🎧 listen before you commit</div>
+          <div class="card-title" id="prelistenTitle">—</div>
+          <div class="player-row">
+            <button class="play-circle" id="mainPlayBtn" onclick="toggleMainPlay()">▶</button>
+            <div class="player-info">
+              <div class="progress-track" id="audioProgress" onclick="seekAudio(event)">
+                <div class="progress-fill" id="audioProgressFill"></div>
+              </div>
+              <div class="player-time" id="audioTime">0:00 / 0:00</div>
+            </div>
+          </div>
+          <div class="action-row">
+            <button class="btn-commit" onclick="confirmSession()">→ lock it in</button>
+            <button class="btn-ghost" onclick="rollDice()">↻ reroll</button>
+          </div>
+        </div>
+
+        <!-- SESSION -->
+        <div class="card" id="sessionCard">
+          <div class="session-time-label" id="sessionTime">now recording</div>
+          <div class="session-song" id="currentSong">—</div>
+          <div style="margin:0.8rem 0;">
+            <div class="mini-player-row">
+              <div class="mini-tag">ref</div>
+              <button class="mini-circle" id="miniPlayBtn" onclick="toggleMiniPlay()">▶</button>
+              <div class="mini-track" id="miniProgress" onclick="seekMiniAudio(event)">
+                <div class="mini-fill" id="miniProgressFill"></div>
+              </div>
+              <div class="mini-t" id="miniTime">0:00</div>
+            </div>
+          </div>
+          <div class="modifier-card">
+            <div class="modifier-card-label">challenge</div>
+            <div class="modifier-card-text" id="modifierText">—</div>
+          </div>
+          <div class="timer-block">
+            <div class="timer-display" id="timerDisplay">60:00</div>
+            <div class="timer-btns">
+              <button class="btn-timer" id="startStopBtn" onclick="toggleTimer()">start</button>
+              <button class="btn-timer" onclick="resetTimer()">reset</button>
+            </div>
+          </div>
+          <button class="btn-done" onclick="finishSession()">✓ demo done — mark complete</button>
+        </div>
+
+        <!-- COACH -->
+        <div class="coach-block">
+          <div class="section-label">Coach</div>
+          <div class="coach-text" id="coachMsg"></div>
+          <button class="btn-coach-refresh" onclick="refreshCoach()">↻ hit me again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-strip" id="logStrip" style="display:none;">
+    <div class="section-label">Session Log</div>
+    <ul class="log-list" id="logList"></ul>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<audio id="audioEl" preload="none"></audio>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const APP_KEY     = 'hsh02lulfgjcug6';
+const AUTH_URL    = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code&redirect_uri=https://demobox-jp.netlify.app/callback&token_access_type=offline`;
+const FOLDER_PATH = '/Musics/_DEMOBOX/DemoMachineApp';
+const AUDIO_EXTS  = ['mp3','wav','m4a','aiff','aif','flac','ogg','wma','opus'];
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const SK = {
+  accessToken:  'db_access_token',
+  refreshToken: 'db_refresh_token',
+  expiresAt:    'db_expires_at',
+  log:          'dm_log',
+  streak:       'dm_streak',
+  lastSession:  'dm_lastSession',
+  weekDone:     'dm_weekDone',
+};
+const load = (k,f) => { try{ return JSON.parse(localStorage.getItem(k))??f; }catch{ return f; } };
+const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
+const del  = (k)   => localStorage.removeItem(k);
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let dropboxFiles    = [];
+let sessionLog      = load(SK.log, []);
+let streak          = load(SK.streak, 0);
+let lastSessionDate = load(SK.lastSession, null);
+let weekDone        = load(SK.weekDone, { week: getWeekId(), count: 0 });
+if (weekDone.week !== getWeekId()) { weekDone = { week: getWeekId(), count: 0 }; save(SK.weekDone, weekDone); }
+
+let currentSession = null;
+let pendingFile    = null;
+let timerInterval  = null;
+let timerSeconds   = 3600;
+let timerRunning   = false;
+let audioLoaded    = false;
+
+const audioEl = document.getElementById('audioEl');
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function startAuth() {
+  window.open(AUTH_URL, 'dropbox_auth', 'width=600,height=700');
+}
+
+// Listen for token coming back from the callback popup
+window.addEventListener('message', async (e) => {
+  if (e.data && e.data.type === 'DROPBOX_AUTH') {
+    const { access_token, refresh_token, expires_in } = e.data.tokens;
+    save(SK.accessToken,  access_token);
+    save(SK.refreshToken, refresh_token);
+    save(SK.expiresAt,    Date.now() + (expires_in * 1000));
+    showApp();
+    await loadDropboxFiles();
+  }
+});
+
+async function getValidToken() {
+  const expiresAt = load(SK.expiresAt, 0);
+  const accessToken = load(SK.accessToken, null);
+
+  // If token is still valid (with 5 min buffer), use it
+  if (accessToken && Date.now() < expiresAt - 300000) {
+    return accessToken;
+  }
+
+  // Otherwise refresh it
+  const refreshToken = load(SK.refreshToken, null);
+  if (!refreshToken) throw new Error('Not authenticated');
+
+  const res = await fetch('/refresh', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+
+  if (!res.ok) throw new Error('Token refresh failed');
+  const data = await res.json();
+
+  save(SK.accessToken, data.access_token);
+  save(SK.expiresAt,   Date.now() + (data.expires_in * 1000));
+  return data.access_token;
+}
+
+function disconnect() {
+  if (!confirm('Disconnect Dropbox? Your session log will be kept.')) return;
+  del(SK.accessToken); del(SK.refreshToken); del(SK.expiresAt);
+  document.getElementById('mainApp').style.display   = 'none';
+  document.getElementById('logStrip').style.display  = 'none';
+  document.getElementById('connectScreen').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('connectScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display       = 'block';
+  document.getElementById('logStrip').style.display      = 'block';
+  renderLog(); renderStreak(); renderWeek(); renderSongs(); refreshCoach();
+}
+
+// ── DROPBOX API ───────────────────────────────────────────────────────────────
+async function loadDropboxFiles() {
+  setDbStatus('loading', 'Syncing…');
+  document.getElementById('rollBtn').disabled = true;
+  try {
+    const token = await getValidToken();
+    const res = await fetch('https://api.dropboxapi.com/2/files/list_folder', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: FOLDER_PATH, recursive: false, limit: 500 }),
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error_summary||`HTTP ${res.status}`); }
+    const data = await res.json();
+    dropboxFiles = (data.entries||[])
+      .filter(e => e['.tag']==='file')
+      .map(e => ({ name: e.name, path: e.path_lower, ext: e.name.split('.').pop().toLowerCase() }))
+      .filter(f => AUDIO_EXTS.includes(f.ext));
+
+    if (!dropboxFiles.length) {
+      setDbStatus('error', 'No audio files found');
+    } else {
+      setDbStatus('connected', `<strong>${dropboxFiles.length} ideas</strong> ready`);
+      document.getElementById('rollBtn').disabled = false;
+    }
+    renderSongs();
+  } catch(e) {
+    setDbStatus('error', `Sync failed: ${e.message}`);
+    showToast('Dropbox sync failed', 'red');
+  }
+}
+
+async function getStreamUrl(path) {
+  const token = await getValidToken();
+  const res = await fetch('https://api.dropboxapi.com/2/files/get_temporary_link', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path }),
+  });
+  if (!res.ok) throw new Error('Could not get streaming link');
+  return (await res.json()).link;
+}
+
+function setDbStatus(state, msg) {
+  document.getElementById('dbDot').className   = `db-led ${state}`;
+  document.getElementById('dbStatus').innerHTML = msg;
+}
+
+// ── MODIFIERS ─────────────────────────────────────────────────────────────────
+const MODIFIERS = [
+  "ONE instrument only. That's it. Whatever you grab first. Don't overthink it.",
+  "No drums. No percussion at all. Not even a tambourine. Deal with it.",
+  "Vocals only. Body percussion allowed. Nothing else.",
+  "Only instruments you can hold in one hand.",
+  "Every sound must come from your voice. All of them.",
+  "Maximum 2 tracks total. Arrangement, melody, everything in 2 tracks.",
+  "Acoustic only. Unplug everything.",
+  "The weirdest thing in the room becomes your lead instrument.",
+  "Keyboards/synths only. No acoustic sounds whatsoever.",
+  "Bass frequencies only — everything has to feel heavy and low.",
+  "You have 30 minutes, not 60. Half the time. Double the urgency.",
+  "You have 20 minutes. Record it before your brain knows what's happening.",
+  "First 15 minutes: write only. Next 15: record only. Done.",
+  "First complete take at or under 10 minutes wins. That's the demo.",
+  "The first thing you record CANNOT be changed. Build around it.",
+  "Record it like it's a lullaby, no matter what the song is about.",
+  "Pretend this was recorded in a bathroom in 1979. Lo-fi. Tape hiss welcome.",
+  "It must feel like a film score. Even if it's 90 seconds.",
+  "Record it as if you'd play it to someone at 2am to explain the idea.",
+  "Pick a genre you've never worked in. That's your genre today.",
+  "It must feel like it was performed live in one room. No punch-ins.",
+  "The tempo must be uncomfortably slow, OR uncomfortably fast. Pick.",
+  "Record it backwards: end first, then build toward the beginning.",
+  "Make it sound like it was found on an old cassette tape. Degrade it.",
+  "No verse-chorus structure. Do something else entirely.",
+  "This version must sound furious. Even if it's a love song.",
+  "Record it as if you're exhausted and don't care. That's the take.",
+  "The mood is: haunted carnival. That's the whole vibe.",
+  "Maximum sincerity. No irony, no cool, no distance.",
+  "It should feel like a confession. Not a performance.",
+  "The song must sound like it belongs in a horror film.",
+  "Record it as if it's the last thing you'll ever make. Make it audible.",
+  "This song is joyful. Even if the lyrics are dark — the music celebrates.",
+  "No headphones during tracking. Record it raw.",
+  "Write one new lyric line before you hit record. It must end up in the demo.",
+  "The first melody you hum when you sit down is the one. No second chances.",
+  "Change the key before you start. Whatever key you were in, shift it.",
+  "Record a 5-minute scratch take FIRST. Then do the real one off that.",
+  "Retune one string on your instrument before recording. Leave it.",
+  "Record at least one layer with something that is not an instrument.",
+  "Start in the middle of the song. Record end, then beginning last.",
+  "Every section needs to be a different tempo. Make it intentional.",
+  "No editing after the take. Whatever happens, happens. That's the demo.",
+  "Record the demo, then record your live reaction as a second track.",
+  "Move to a different room than you normally record in.",
+  "The song must resolve in an unexpected key. Don't land where you started.",
+  "Use something in your environment as percussion.",
+  "Dedicate this demo to someone without telling them. Let it affect how you play.",
+  "No metronome. No click. No grid. Feel it.",
+  "Record it in the dark.",
+];
+
+const COACH_MSGS = [
+  "<strong>Sit down.</strong> Not tomorrow. Not after one more scroll. Right now. Your ass in the chair, your hands on the instrument. We're doing this.",
+  "You're tired? <strong>Good.</strong> Some of the most honest recordings ever made happened when the person was running on fumes. Start anyway.",
+  "Every file in that folder is waiting for you to stop putting it off. <strong>Pick one. Record it. Move on.</strong> That's the whole job.",
+  "You don't have to feel inspired. <strong>Inspiration is for amateurs. You're a working artist. Work.</strong>",
+  "<strong>The demo doesn't have to be good.</strong> It has to exist. A mediocre recording of a great idea beats a perfect recording of nothing.",
+  "You've been thinking about making music instead of making music. <strong>Those are not the same thing.</strong> Stop thinking. Start recording.",
+  "One hour. That's it. You've wasted more time today doing less meaningful things. <strong>This matters. Act like it.</strong>",
+  "What's the worst that happens? A bad demo? <strong>A bad demo is more than you have right now.</strong> Make the thing.",
+  "You have a folder full of songs that deserve to exist. <strong>Every day you don't touch them, they die a little.</strong> Go rescue one.",
+  "<strong>No one is coming to make this for you.</strong> There's no session booked, no producer waiting. It's just you. So be the one who shows up.",
+  "Artists don't wait to feel ready. <strong>They sit down, they begin, and readiness follows.</strong> Begin.",
+  "You built this tool because you knew future-you would try to skip. <strong>Past-you was smarter. Listen to past-you.</strong>",
+  "An hour from now this could be done. <strong>But first: make the thing.</strong>",
+  "The song doesn't care that you're tired. <strong>It just wants to exist.</strong> Help it.",
+  "<strong>Stop reading this. Open your session. Hit record.</strong>",
+  "You know that feeling after a demo where you're glad you did it? <strong>You're 60 minutes from that feeling.</strong>",
+  "Your future self is either going to be grateful or embarrassed. <strong>Make them grateful.</strong>",
+  "<strong>This is not optional anymore.</strong> 3x a week. Today is one of those days. Begin.",
+];
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function cleanName(f) { return f.name.replace(/\.[^/.]+$/,'').replace(/[_-]+/g,' ').trim(); }
+
+function renderSongs() {
+  const list = document.getElementById('songList');
+  list.innerHTML = '';
+  dropboxFiles.forEach(f => {
+    const li = document.createElement('li');
+    li.className = 'song-item';
+    li.innerHTML = `<span class="song-icon">▸</span><span class="song-name">${cleanName(f)}</span><span class="song-ext">${f.ext}</span>`;
+    list.appendChild(li);
+  });
+  document.getElementById('songCount').textContent = dropboxFiles.length === 0
+    ? '— waiting for sync' : `${dropboxFiles.length} idea${dropboxFiles.length!==1?'s':''} in folder`;
+}
+
+function renderLog() {
+  const list = document.getElementById('logList');
+  list.innerHTML = '';
+  if (!sessionLog.length) { list.innerHTML = '<li class="empty-state">No sessions yet. Go make something.</li>'; return; }
+  [...sessionLog].reverse().forEach(e => {
+    const li = document.createElement('li');
+    li.className = 'log-item';
+    li.innerHTML = `<span class="log-date">${formatDate(e.date)}</span><span class="log-song">${e.song}</span><span class="log-mod">${e.modifier.substring(0,50)}…</span>`;
+    list.appendChild(li);
+  });
+}
+
+function renderStreak() {
+  document.getElementById('streakNum').textContent = streak;
+  const dots = document.getElementById('calDots');
+  dots.innerHTML = '';
+  sessionLog.slice(-10).forEach(e => {
+    const d = document.createElement('div');
+    d.className = 'cal-dot done'; d.title = e.song; dots.appendChild(d);
+  });
+}
+
+function renderWeek() {
+  const count = weekDone.week === getWeekId() ? weekDone.count : 0;
+  document.getElementById('weekProgress').textContent = `${count} / 3 sessions this week`;
+  for(let i=1;i<=3;i++) document.getElementById(`w${i}`).className = 'week-seg' + (i<=count?' done':'');
+}
+
+function refreshCoach() {
+  const el = document.getElementById('coachMsg');
+  el.style.opacity = 0;
+  setTimeout(() => { el.innerHTML = pick(COACH_MSGS); el.style.opacity = 1; }, 200);
+}
+
+// ── AUDIO ─────────────────────────────────────────────────────────────────────
+function fmt(s) { if(!s||isNaN(s))return'0:00'; return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
+
+audioEl.addEventListener('timeupdate', () => {
+  const pct = audioEl.duration ? (audioEl.currentTime/audioEl.duration)*100 : 0;
+  document.getElementById('audioProgressFill').style.width = pct+'%';
+  document.getElementById('miniProgressFill').style.width  = pct+'%';
+  document.getElementById('audioTime').textContent = `${fmt(audioEl.currentTime)} / ${fmt(audioEl.duration)}`;
+  document.getElementById('miniTime').textContent  = fmt(audioEl.currentTime);
+});
+audioEl.addEventListener('ended', () => setPlayBtns('▶'));
+
+function toggleMainPlay() { if(!audioLoaded)return; audioEl.paused?(audioEl.play(),setPlayBtns('⏸')):(audioEl.pause(),setPlayBtns('▶')); }
+function toggleMiniPlay() { if(!audioLoaded)return; audioEl.paused?(audioEl.play(),setPlayBtns('⏸')):(audioEl.pause(),setPlayBtns('▶')); }
+function setPlayBtns(i)   { document.getElementById('mainPlayBtn').textContent=i; document.getElementById('miniPlayBtn').textContent=i; }
+function seekAudio(e)     { if(!audioEl.duration)return; const r=document.getElementById('audioProgress').getBoundingClientRect(); audioEl.currentTime=((e.clientX-r.left)/r.width)*audioEl.duration; }
+function seekMiniAudio(e) { if(!audioEl.duration)return; const r=document.getElementById('miniProgress').getBoundingClientRect(); audioEl.currentTime=((e.clientX-r.left)/r.width)*audioEl.duration; }
+
+async function loadAudio(file) {
+  audioLoaded = false;
+  const btn = document.getElementById('mainPlayBtn');
+  btn.classList.add('loading'); setPlayBtns('…');
+  try {
+    audioEl.src = await getStreamUrl(file.path);
+    audioEl.load(); audioLoaded = true; setPlayBtns('▶');
+  } catch(e) { setPlayBtns('!'); showToast('Could not load audio','red'); }
+  btn.classList.remove('loading');
+}
+
+// ── DICE / SESSION ────────────────────────────────────────────────────────────
+async function rollDice() {
+  if(!dropboxFiles.length) return;
+  audioEl.pause(); setPlayBtns('▶');
+  ['audioProgressFill','miniProgressFill'].forEach(id => document.getElementById(id).style.width='0%');
+  document.getElementById('audioTime').textContent = '0:00 / 0:00';
+  document.getElementById('miniTime').textContent  = '0:00';
+  pendingFile = dropboxFiles[Math.floor(Math.random()*dropboxFiles.length)];
+  document.getElementById('prelistenTitle').textContent = cleanName(pendingFile);
+  document.getElementById('prelistenCard').classList.add('visible');
+  document.getElementById('sessionCard').classList.remove('visible');
+  document.getElementById('rollBtn').disabled = true;
+  await loadAudio(pendingFile);
+}
+
+function confirmSession() {
+  if(!pendingFile) return;
+  audioEl.pause(); setPlayBtns('▶');
+  const modifier = pick(MODIFIERS);
+  currentSession = { file: pendingFile, modifier };
+  document.getElementById('currentSong').textContent   = cleanName(pendingFile);
+  document.getElementById('modifierText').textContent  = modifier;
+  document.getElementById('sessionTime').textContent   = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) + ' — now recording';
+  document.getElementById('prelistenCard').classList.remove('visible');
+  document.getElementById('sessionCard').classList.add('visible');
+  resetTimer(); refreshCoach();
+  showToast('Session locked. No backing out.', 'orange');
+}
+
+function finishSession() {
+  if(!currentSession) return;
+  audioEl.pause();
+  sessionLog.push({ date: new Date().toISOString(), song: cleanName(currentSession.file), modifier: currentSession.modifier });
+  save(SK.log, sessionLog);
+  const today = new Date().toDateString();
+  if(lastSessionDate !== today) { streak++; lastSessionDate = today; save(SK.streak, streak); save(SK.lastSession, lastSessionDate); }
+  if(weekDone.week !== getWeekId()) weekDone = { week: getWeekId(), count: 0 };
+  weekDone.count = Math.min(weekDone.count+1, 3); save(SK.weekDone, weekDone);
+  clearInterval(timerInterval); timerRunning = false;
+  currentSession = null; pendingFile = null; audioLoaded = false;
+  document.getElementById('sessionCard').classList.remove('visible');
+  document.getElementById('rollBtn').disabled = dropboxFiles.length === 0;
+  renderLog(); renderStreak(); renderWeek();
+  showToast('Demo logged. That one exists now.', 'lime');
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+function updateTimerDisplay() {
+  const el = document.getElementById('timerDisplay');
+  el.textContent = `${String(Math.floor(timerSeconds/60)).padStart(2,'0')}:${String(timerSeconds%60).padStart(2,'0')}`;
+  el.className = 'timer-display' + (timerSeconds<=300&&timerSeconds>60?' warning':timerSeconds<=60?' danger':'');
+}
+function toggleTimer() {
+  const btn = document.getElementById('startStopBtn');
+  if(timerRunning) { clearInterval(timerInterval); timerRunning=false; btn.textContent='start'; btn.classList.remove('active'); }
+  else {
+    timerRunning=true; btn.textContent='pause'; btn.classList.add('active');
+    timerInterval = setInterval(() => {
+      if(timerSeconds>0) { timerSeconds--; updateTimerDisplay(); }
+      else { clearInterval(timerInterval); timerRunning=false; btn.textContent='start'; btn.classList.remove('active'); showToast("Time's up. Done anyway.",'orange'); }
+    }, 1000);
+  }
+}
+function resetTimer() {
+  clearInterval(timerInterval); timerRunning=false; timerSeconds=3600;
+  document.getElementById('startStopBtn').textContent='start';
+  document.getElementById('startStopBtn').classList.remove('active');
+  updateTimerDisplay();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function getWeekId() { const d=new Date(); return`${d.getFullYear()}-${Math.floor((d-new Date(d.getFullYear(),0,1))/604800000)}`; }
+function formatDate(iso) { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.className=`toast ${type}`; t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+refreshCoach();
+
+// Check if already authenticated
+const hasToken = load(SK.refreshToken, null);
+if (hasToken) {
+  showApp();
+  loadDropboxFiles();
+} else {
+  document.getElementById('connectScreen').style.display = 'flex';
+}
+</script>
+</body>
+</html>
