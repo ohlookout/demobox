@@ -639,7 +639,7 @@ body {
           <div class="fight-ring">
             <div class="fighter-col">
               <div class="bf-wrap" id="bigfootFighter" style="min-height:120px;align-items:center;">
-                <video autoplay loop muted playsinline style="display:block;width:120px;height:auto;" src="./videos/bigfoot-ready.mp4"></video>
+                <video autoplay loop muted playsinline style="display:block;width:120px;height:auto;" src="https://raw.githubusercontent.com/ohlookout/demobox/main/videos/bigfoot-ready.mp4"></video>
               </div>
               <div class="fighter-name">BIGFOOT</div>
             </div>
@@ -4707,15 +4707,21 @@ function continueAfterResult(){
 }
 
 // BIGFOOT WALK CYCLE
-function startWalkCycle() { /* video loops automatically */ }
+function startWalkCycle() {
+  const arenaVideo = document.getElementById('arenaVideo');
+  if (arenaVideo) {
+    arenaVideo.src = 'https://raw.githubusercontent.com/ohlookout/demobox/main/videos/bigfoot-ready.mp4';
+    arenaVideo.play();
+  }
+}
 function stopWalkCycle() { /* no-op */ }
 
 function getVictorySVG() {
-  return `<div class="bf-wrap" style="min-height:120px;align-items:center;"><video autoplay loop muted playsinline style="display:block;width:120px;height:auto;" src="./videos/bigfoot-winner.mp4"></video></div>`;
+  return `<div class="bf-wrap" style="min-height:120px;align-items:center;"><video autoplay loop muted playsinline style="display:block;width:120px;height:auto;" src="https://raw.githubusercontent.com/ohlookout/demobox/main/videos/bigfoot-winner.mp4"></video></div>`;
 }
 
 function getDazedSVG() {
-  return `<div class="bf-wrap" style="min-height:120px;align-items:center;"><video autoplay loop muted playsinline style="display:block;width:120px;height:auto;" src="./videos/bigfoot-loser.mp4""></video></div>`;
+  return `<div class="bf-wrap" style="min-height:120px;align-items:center;"><video autoplay loop muted playsinline style="display:block;width:120px;height:auto;" src="https://raw.githubusercontent.com/ohlookout/demobox/main/videos/bigfoot-loser.mp4""></video></div>`;
 }
 
 // UTILS
