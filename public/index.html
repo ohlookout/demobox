@@ -117,6 +117,7 @@ body {
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: stretch;
   position: relative;
   z-index: 1;
 }
@@ -191,7 +192,7 @@ body {
 .btn-tiny.danger:hover { background: #d44; color: #000; border-color: #d44; }
 
 /* SONG LIST */
-.song-list { list-style: none; max-height: 200px; overflow-y: auto; margin-bottom: 0.5rem; }
+.song-list { list-style: none; flex: 1; min-height: 80px; overflow-y: auto; margin-bottom: 0.5rem; }
 .song-list::-webkit-scrollbar { width: 3px; }
 .song-list::-webkit-scrollbar-thumb { background: var(--orange); }
 .song-item {
@@ -234,63 +235,24 @@ body {
 
 /* RANDOMNESS */
 .coach-block {
-  /* separator: pixel border top */
   padding-top: 0;
   margin-top: 1.4rem;
-  transition: min-height 0.3s ease;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
-.coach-block.fighting {
-  margin-top: 0;
-  border: 2px solid var(--orange);
-  padding: 1rem 1rem 0.8rem;
-  background: var(--surface2);
-}
 
-/* 8-bit quote ticker during fight */
-.fight-quote-ticker {
-  display: none;
-  flex-direction: column;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-}
-.fight-quote-ticker.active { display: flex; }
-.ticker-label {
-  font-size: 0.3rem;
-  letter-spacing: 0.3em;
-  color: var(--orange);
-  animation: blink 1s step-end infinite;
-}
-.ticker-quote {
-  font-size: 0.42rem;
-  line-height: 2.2;
-  color: var(--cream);
-  font-style: italic;
-  min-height: 2.8rem;
-  transition: opacity 0.15s;
-}
-.ticker-attr {
-  font-size: 0.36rem;
-  color: var(--orange2);
-  letter-spacing: 0.08em;
-}
-.ticker-quote.flash-out { opacity: 0; }
-.ticker-quote.flash-in  { animation: pixelIn 0.3s steps(4) forwards; }
-.ticker-attr.flash-out { opacity: 0; }
-.ticker-attr.flash-in  { animation: pixelIn 0.3s steps(4) forwards; }
+/* fight-mode quote flash */
+.coach-quote.flash-out, .coach-attr.flash-out { opacity: 0; }
+.coach-quote.flash-in { animation: pixelIn 0.3s steps(4) forwards; }
+.coach-attr.flash-in  { animation: pixelIn 0.3s steps(4) forwards; }
 
 @keyframes pixelIn {
   0%   { opacity: 0; transform: translateX(-4px); }
   25%  { opacity: 0.3; }
   50%  { opacity: 0.7; transform: translateX(1px); }
   100% { opacity: 1; transform: translateX(0); }
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
 }
 .coach-quote {
   font-size: 0.42rem;
@@ -611,7 +573,7 @@ body {
         <ul class="song-list" id="songList"></ul>
         <div class="song-count" id="songCount"></div>
 
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; margin-top:1.6rem;">
+        <div style="margin-top:1.2rem;">
           <div class="section-label">This Week</div>
           <div class="week-row" id="weekRow" style="padding:0;">
             <div class="week-glove" id="w1"></div>
@@ -724,11 +686,6 @@ body {
 
         <!-- PERSPIRATION / MIND BULLETS -->
         <div class="coach-block" id="coachBlock">
-          <div class="fight-quote-ticker" id="fightQuoteTicker">
-            <div class="ticker-label">◼ MIND BULLETS ◼</div>
-            <div class="ticker-quote" id="tickerQuote"></div>
-            <div class="ticker-attr" id="tickerAttr"></div>
-          </div>
           <div class="section-label">Perspiration</div>
           <div class="coach-quote" id="coachQuote"></div>
           <div class="coach-attr" id="coachAttr"></div>
@@ -4721,17 +4678,13 @@ async function loadAudio(file){
 }
 
 function startFightQuoteTicker() {
-  const ticker = document.getElementById('fightQuoteTicker');
-  const block = document.getElementById('coachBlock');
-  ticker.classList.add('active');
-  block.classList.add('fighting');
   showTickerQuote();
   fightQuoteInterval = setInterval(showTickerQuote, 60000);
 }
 
 function showTickerQuote() {
-  const qEl = document.getElementById('tickerQuote');
-  const aEl = document.getElementById('tickerAttr');
+  const qEl = document.getElementById('coachQuote');
+  const aEl = document.getElementById('coachAttr');
   qEl.classList.add('flash-out');
   aEl.classList.add('flash-out');
   setTimeout(() => {
@@ -4749,10 +4702,6 @@ function showTickerQuote() {
 function stopFightQuoteTicker() {
   clearInterval(fightQuoteInterval);
   fightQuoteInterval = null;
-  const ticker = document.getElementById('fightQuoteTicker');
-  const block = document.getElementById('coachBlock');
-  ticker.classList.remove('active');
-  block.classList.remove('fighting');
 }
 
 // FIGHT FLOW
