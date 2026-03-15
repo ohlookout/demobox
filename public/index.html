@@ -127,6 +127,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+.col:last-child {
+  display: flex;
+  flex-direction: column;
+}
 
 /* Column divider: pixel-style dashed orange instead of solid grey */
 .col:first-child {
@@ -233,6 +237,60 @@ body {
   /* separator: pixel border top */
   padding-top: 0;
   margin-top: 1.4rem;
+  transition: min-height 0.3s ease;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.coach-block.fighting {
+  margin-top: 0;
+  border: 2px solid var(--orange);
+  padding: 1rem 1rem 0.8rem;
+  background: var(--surface2);
+}
+
+/* 8-bit quote ticker during fight */
+.fight-quote-ticker {
+  display: none;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.fight-quote-ticker.active { display: flex; }
+.ticker-label {
+  font-size: 0.3rem;
+  letter-spacing: 0.3em;
+  color: var(--orange);
+  animation: blink 1s step-end infinite;
+}
+.ticker-quote {
+  font-size: 0.42rem;
+  line-height: 2.2;
+  color: var(--cream);
+  font-style: italic;
+  min-height: 2.8rem;
+  transition: opacity 0.15s;
+}
+.ticker-attr {
+  font-size: 0.36rem;
+  color: var(--orange2);
+  letter-spacing: 0.08em;
+}
+.ticker-quote.flash-out { opacity: 0; }
+.ticker-quote.flash-in  { animation: pixelIn 0.3s steps(4) forwards; }
+.ticker-attr.flash-out { opacity: 0; }
+.ticker-attr.flash-in  { animation: pixelIn 0.3s steps(4) forwards; }
+
+@keyframes pixelIn {
+  0%   { opacity: 0; transform: translateX(-4px); }
+  25%  { opacity: 0.3; }
+  50%  { opacity: 0.7; transform: translateX(1px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 .coach-quote {
   font-size: 0.42rem;
@@ -664,9 +722,14 @@ body {
           </div>
         </div>
 
-        <!-- RANDOMNESS -->
-        <div class="coach-block">
-          <div class="section-label">Randomness</div>
+        <!-- PERSPIRATION / MIND BULLETS -->
+        <div class="coach-block" id="coachBlock">
+          <div class="fight-quote-ticker" id="fightQuoteTicker">
+            <div class="ticker-label">◼ MIND BULLETS ◼</div>
+            <div class="ticker-quote" id="tickerQuote"></div>
+            <div class="ticker-attr" id="tickerAttr"></div>
+          </div>
+          <div class="section-label">Perspiration</div>
           <div class="coach-quote" id="coachQuote"></div>
           <div class="coach-attr" id="coachAttr"></div>
           <button class="btn-coach-refresh" onclick="refreshCoach()"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M8.5 5A3.5 3.5 0 1 1 6.5 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/><polyline points="6,1 7,3 5,3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> another one</button>
@@ -698,6 +761,8 @@ const AUTH_URL    = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KE
 const FOLDER_PATH = '/Musics/_DEMOBOX/DemoMachineApp';
 const AUDIO_EXTS  = ['mp3','wav','m4a','aiff','aif','flac','ogg','wma','opus'];
 const FIGHT_SECS  = 90 * 60;
+
+let fightQuoteInterval = null;
 
 const TROPHY_1C = `<svg width="44" height="44" id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 500 500" width="90" height="90">
   <!-- Generator: Adobe Illustrator 29.8.5, SVG Export Plug-In . SVG Version: 2.1.1 Build 2)  -->
@@ -3766,6 +3831,39 @@ const QUOTES=[
   {q:"It's a bold strategy, Cotton. Let's see if it pays off.",a:"Pepper Brooks",r:"sports commentator"},
   {q:"Today I will live in the moment. Unless it's unpleasant, in which case I will eat a cookie.",a:"Cookie Monster",r:"philosopher"},
   {q:"The worst thing about being a ghost must be that for your whole death you have to wear whatever you were wearing when you died.",a:"Demetri Martin",r:"comedian"},
+  // Kurt Vonnegut
+  {q:"We are what we pretend to be, so we must be careful about what we pretend to be.",a:"Kurt Vonnegut",r:"author"},
+  {q:"I tell you, we are here on Earth to fart around, and don't let anybody tell you different.",a:"Kurt Vonnegut",r:"author"},
+  {q:"Laughter and tears are both responses to frustration and exhaustion. I myself prefer to laugh.",a:"Kurt Vonnegut",r:"author"},
+  {q:"I want to stand as close to the edge as I can without going over. Out on the edge you see all kinds of things you can't see from the center.",a:"Kurt Vonnegut",r:"author"},
+  {q:"Be soft. Do not let the world make you hard.",a:"Kurt Vonnegut",r:"author"},
+  {q:"We have to continually be jumping off cliffs and developing our wings on the way down.",a:"Kurt Vonnegut",r:"author"},
+  // UCB
+  {q:"Yes, and.",a:"UCB",r:"improv principle"},
+  {q:"Make your partner look good.",a:"UCB",r:"improv principle"},
+  {q:"The answer to 'what should I do?' is always 'commit harder.'",a:"UCB",r:"improv principle"},
+  {q:"If you're not failing, you're not taking big enough risks.",a:"UCB",r:"improv principle"},
+  // Dave Chappelle
+  {q:"The worst thing to call somebody is crazy. It's dismissive.",a:"Dave Chappelle",r:"comedian"},
+  {q:"I don't normally talk about my religion publicly because I don't want people to associate me and my flaws with this beautiful thing.",a:"Dave Chappelle",r:"comedian"},
+  {q:"Be careful of the stories you tell about yourself.",a:"Dave Chappelle",r:"comedian"},
+  // Eddie Murphy
+  {q:"I always tried to do different things so people would never be able to put me in a box.",a:"Eddie Murphy",r:"comedian & actor"},
+  {q:"The advice I would give to anyone is to not take anyone's advice.",a:"Eddie Murphy",r:"comedian & actor"},
+  {q:"I'm gonna live my life. I'm gonna do what I do.",a:"Eddie Murphy",r:"comedian & actor"},
+  // Patton Oswalt
+  {q:"You have to fail on a grand, Wagnerian scale. Mediocre failure is the worst.",a:"Patton Oswalt",r:"comedian"},
+  {q:"Every bad thing you do as a creative person can be salvaged. Nothing is ever wasted.",a:"Patton Oswalt",r:"comedian"},
+  {q:"Shame is such a useless emotion. Save it for when you really need it.",a:"Patton Oswalt",r:"comedian"},
+  {q:"Life is really short, and if you're going to do something, you gotta do it now.",a:"Patton Oswalt",r:"comedian"},
+  // Todd Barry
+  {q:"I was going to do something today. Then I thought: what am I, some kind of person?",a:"Todd Barry",r:"comedian"},
+  {q:"I'm very low-key. I don't need a lot of attention. I just need the right amount of attention.",a:"Todd Barry",r:"comedian"},
+  {q:"I'll do something. I just need a minute.",a:"Todd Barry",r:"comedian"},
+  // Sarah Silverman
+  {q:"Say what's true even when it's uncomfortable. Especially then.",a:"Sarah Silverman",r:"comedian"},
+  {q:"I like to think I'm not doing the same thing over and over. Even if it looks that way from the outside.",a:"Sarah Silverman",r:"comedian"},
+  {q:"The goal isn't to be liked. The goal is to be honest and find who laughs at that.",a:"Sarah Silverman",r:"comedian"},
 ];
 
 const KO_QUOTES=[
@@ -4622,6 +4720,41 @@ async function loadAudio(file){
   btn.classList.remove('loading');
 }
 
+function startFightQuoteTicker() {
+  const ticker = document.getElementById('fightQuoteTicker');
+  const block = document.getElementById('coachBlock');
+  ticker.classList.add('active');
+  block.classList.add('fighting');
+  showTickerQuote();
+  fightQuoteInterval = setInterval(showTickerQuote, 60000);
+}
+
+function showTickerQuote() {
+  const qEl = document.getElementById('tickerQuote');
+  const aEl = document.getElementById('tickerAttr');
+  qEl.classList.add('flash-out');
+  aEl.classList.add('flash-out');
+  setTimeout(() => {
+    const item = pick(QUOTES);
+    qEl.textContent = '\u201C' + item.q + '\u201D';
+    aEl.textContent = '— ' + item.a + ', ' + item.r;
+    qEl.classList.remove('flash-out');
+    aEl.classList.remove('flash-out');
+    qEl.classList.add('flash-in');
+    aEl.classList.add('flash-in');
+    setTimeout(() => { qEl.classList.remove('flash-in'); aEl.classList.remove('flash-in'); }, 400);
+  }, 150);
+}
+
+function stopFightQuoteTicker() {
+  clearInterval(fightQuoteInterval);
+  fightQuoteInterval = null;
+  const ticker = document.getElementById('fightQuoteTicker');
+  const block = document.getElementById('coachBlock');
+  ticker.classList.remove('active');
+  block.classList.remove('fighting');
+}
+
 // FIGHT FLOW
 async function pickSong(){
   if(!dropboxFiles.length)return;
@@ -4650,6 +4783,7 @@ function startFight(){
   timerSeconds=FIGHT_SECS;updateArenaTimer();
   clearInterval(timerInterval);timerRunning=true;
   startWalkCycle();
+  startFightQuoteTicker();
   timerInterval=setInterval(()=>{
     if(timerSeconds>0){timerSeconds--;updateArenaTimer();}
     else{clearInterval(timerInterval);timerRunning=false;triggerRoundOver();}
@@ -4678,6 +4812,7 @@ function triggerRoundOver(){
 function endSession(isKO,elapsed){
   audioEl.pause();
   stopWalkCycle();
+  stopFightQuoteTicker();
   const entry={date:new Date().toISOString(),song:cleanName(currentSession.file),modifier:currentSession.modifier,ko:isKO,elapsed};
   sessionLog.push(entry);save(SK.log,sessionLog);
   const today=new Date().toDateString();
