@@ -127,11 +127,12 @@ body {
 .col:first-child {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 .col:last-child {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 100%;
 }
 
 /* Column divider: pixel-style dashed orange instead of solid grey */
@@ -193,7 +194,7 @@ body {
 .btn-tiny.danger:hover { background: #d44; color: #000; border-color: #d44; }
 
 /* SONG LIST */
-.song-list { list-style: none; flex: 1; min-height: 80px; max-height: 100%; overflow-y: auto; margin-bottom: 0.5rem; }
+.song-list { list-style: none; max-height: 300px; overflow-y: auto; margin-bottom: 0.5rem; }
 .song-list::-webkit-scrollbar { width: 3px; }
 .song-list::-webkit-scrollbar-thumb { background: var(--orange); }
 .song-item {
@@ -233,6 +234,7 @@ body {
   width: 100%;
 }
 .week-glove { display: flex; align-items: center; justify-content: center; } .week-glove svg { width: 44px !important; height: 44px !important; flex-shrink: 0; }
+#trophyWrap.fighting { padding-top: 2rem; padding-bottom: 2rem; }
 
 /* RANDOMNESS */
 .coach-block {
@@ -243,7 +245,6 @@ body {
   flex-direction: column;
   justify-content: flex-end;
 }
-
 /* fight-mode quote flash */
 .coach-quote.flash-out, .coach-attr.flash-out { opacity: 0; }
 .coach-quote.flash-in { animation: pixelIn 0.3s steps(4) forwards; }
@@ -574,9 +575,9 @@ body {
         <ul class="song-list" id="songList"></ul>
         <div class="song-count" id="songCount"></div>
 
-        <div style="margin-top:1.2rem;">
+        <div id="trophyWrap" style="margin-top:1.6rem; padding: 1rem 0 0.6rem;">
           <div class="section-label">This Week</div>
-          <div class="week-row" id="weekRow" style="padding:0;">
+          <div class="week-row" id="weekRow" style="padding:0.8rem 0;">
             <div class="week-glove" id="w1"></div>
             <div class="week-glove" id="w2"></div>
             <div class="week-glove" id="w3"></div>
@@ -3867,6 +3868,7 @@ function renderSongs(){
     list.appendChild(li);
   });
   document.getElementById('songCount').textContent=dropboxFiles.length===0?'— waiting for sync':`${dropboxFiles.length} idea${dropboxFiles.length!==1?'s':''} in folder`;
+  setTimeout(syncColHeights, 50);
 }
 
 function renderScoreboard(){
@@ -4739,6 +4741,7 @@ function startFight(){
     else{clearInterval(timerInterval);timerRunning=false;triggerRoundOver();}
   },1000);
   refreshCoach();
+  document.getElementById('trophyWrap').classList.add('fighting');
   showToast('FIGHT!','orange');
 }
 
@@ -4772,6 +4775,7 @@ function endSession(isKO,elapsed){
   document.getElementById('fightArena').classList.remove('visible');
   showResult(isKO,elapsed,entry.song);
   currentSession=null;pendingFile=null;audioLoaded=false;
+  document.getElementById('trophyWrap').classList.remove('fighting');
   renderScoreboard();renderStreak();renderWeek();
 }
 
@@ -4819,6 +4823,26 @@ refreshCoach();
 const hasToken=load(SK.refreshToken,null);
 if(hasToken){showApp();loadDropboxFiles();}
 else{document.getElementById('connectScreen').style.display='flex';}
+
+// SYNC COL HEIGHTS — right col matches left col
+function syncColHeights() {
+  const cols = document.querySelectorAll('.main-grid .col');
+  if (cols.length < 2) return;
+  const leftCol = cols[0];
+  const rightCol = cols[1];
+  rightCol.style.minHeight = '';
+  const leftH = leftCol.getBoundingClientRect().height;
+  rightCol.style.minHeight = leftH + 'px';
+}
+
+// Run after DOM settles and whenever songs load
+window.addEventListener('load', () => setTimeout(syncColHeights, 100));
+window.addEventListener('resize', syncColHeights);
+
+// Patch loadDropboxFiles to re-sync after songs render
+const _origRender = typeof renderSongList === 'function' ? renderSongList : null;
+function syncAfterSongs() { setTimeout(syncColHeights, 50); }
+
 
 </script>
 </body>
