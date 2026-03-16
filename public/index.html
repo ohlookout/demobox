@@ -3715,7 +3715,11 @@ async function loadDropboxFiles(){
   }catch(e){setDbStatus('error',`Sync failed: ${e.message}`);showToast('Dropbox sync failed','red');}
 }
 async function getStreamUrl(path){
-  if(isDemoMode) return path;
+  if(isDemoMode) {
+    const url = path.split('/').map((s,i) => i === 0 ? s : encodeURIComponent(s)).join('/');
+    console.log('Demo audio URL:', url);
+    return url;
+  }
   const token=await getValidToken();
   const res=await fetch('https://api.dropboxapi.com/2/files/get_temporary_link',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({path})});
   if(!res.ok)throw new Error('Could not get streaming link');
