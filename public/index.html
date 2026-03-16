@@ -367,18 +367,20 @@ body {
 .log-strip {
   border-top: 3px solid var(--orange);
   background: var(--surface);
+  padding: 0 1.8rem 1.8rem;
 }
 .scoreboard-header {
   background: var(--orange);
-  padding: 0.6rem 1.4rem;
+  padding: 0.6rem 3.2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin: 0 -1.8rem;
 }
 
 .scoreboard-title { font-size: 0.48rem; color: #000; letter-spacing: 0.12em; }
 .scoreboard-sub { font-size: 0.3rem; color: rgba(0,0,0,0.5); margin-top: 3px; }
-.scoreboard-body { padding: 0.8rem 1.4rem; max-height: 200px; overflow-y: auto; }
+.scoreboard-body { padding: 0.8rem 0; max-height: 200px; overflow-y: auto; }
 .score-row {
   display: grid;
   grid-template-columns: 1.6rem 1fr auto auto;
@@ -580,10 +582,9 @@ body {
 </svg>
           SONG PUNCHER
         </button>
-        <img src="https://raw.githubusercontent.com/ohlookout/demobox/main/image/DMBX_RING.png" style="width:100%; height:auto; display:block; max-height:320px; object-fit:cover; object-position:center;" alt="Ring">
-        </div>
+        <img id="ringImage" src="https://raw.githubusercontent.com/ohlookout/demobox/main/image/DMBX_RING.png" style="width:100%; height:auto; display:block; max-height:320px; object-fit:cover; object-position:center;" alt="Ring">
 
-                <!-- PRE-LISTEN -->
+        <!-- PRE-LISTEN -->
         <div class="card prelisten" id="prelistenCard">
           <div class="card-title" id="prelistenTitle">—</div>
           <div class="player-row">
