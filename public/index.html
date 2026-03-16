@@ -409,6 +409,9 @@ body {
 .connect-screen p { font-size: 0.38rem; color: var(--text3); max-width: 320px; line-height: 2; }
 .btn-connect { font-family: 'Press Start 2P', monospace; font-size: 0.55rem; letter-spacing: 0.06em; background: var(--orange); color: #000; border: none; padding: 0.8rem 1.8rem; cursor: pointer; margin-top: 0.5rem; transition: all 0.1s; }
 .btn-connect:hover { background: var(--orange2); box-shadow: 0 0 28px rgba(232,83,10,0.4); }
+.btn-demo { background: transparent; color: var(--text3); border: 2px solid var(--border2); }
+.btn-demo:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); box-shadow: none; }
+.connect-divider { font-size: 0.35rem; color: var(--text3); letter-spacing: 0.2em; margin: 0.3rem 0; }
 
 /* PRE-LISTEN */
 .card { background: var(--surface2); border: 2px solid var(--border2); padding: 1.1rem; display: none; margin-bottom: 1.2rem; }
@@ -530,8 +533,7 @@ body {
     <div class="streak-widget">
       <div class="streak-num" id="streakNum">0</div>
       <div class="streak-meta">
-        <span class="streak-label">Streak</span>
-        <span class="streak-sub">sessions</span>
+        <span class="streak-label">DAY STREAK</span>
         <div class="cal-dots" id="calDots"></div>
       </div>
     </div>
@@ -541,6 +543,8 @@ body {
     <h2>Connect your Dropbox</h2>
     <p>DEMOBOXING needs access to your Dropbox folder. This only happens once.</p>
     <button class="btn-connect" onclick="startAuth()">Connect Dropbox →</button>
+    <div class="connect-divider">or</div>
+    <button class="btn-connect btn-demo" onclick="startDemo()">Try Demo →</button>
   </div>
 
   <div id="mainApp" style="display:none;">
@@ -3611,6 +3615,30 @@ const TROPHY_3G = `<svg width="44" height="44" id="Layer_1" xmlns="http://www.w3
   <rect fill="#727272" x="272.29" y="113.58" width="14.86" height="14.86"/>
 </svg>`;
 const SK = { accessToken:'db_access_token', refreshToken:'db_refresh_token', expiresAt:'db_expires_at', log:'dm_log', streak:'dm_streak', lastSession:'dm_lastSession', weekDone:'dm_weekDone' };
+
+let isDemoMode = false;
+
+const DEMO_FILES = [
+  'i wanna be alone (with you).mp3',
+  'it\'s alive.mp3',
+  'monster fiction.mp3',
+  'skeletoned.mp3',
+  'sophisticated pleasure.mp3',
+  'velcrowolf.mp3',
+  'walkman wars.mp3',
+  'we\'re all messes aren\'t we.mp3',
+  'who killed gene hackman.mp3',
+  'all the stupid shit i said.mp3',
+  'bigfoot is my god.mp3',
+  'cassette tape fangs.mp3',
+  'fucking summer.mp3',
+  'gnawing away (at the bosses face).mp3',
+].map(name => ({
+  name,
+  path: `/demo/${name}`,
+  ext: 'mp3',
+  demo: true,
+}));
 const load = (k,f) => { try{ return JSON.parse(localStorage.getItem(k))??f; }catch{ return f; }};
 const save = (k,v) => localStorage.setItem(k, JSON.stringify(v));
 const del  = (k)   => localStorage.removeItem(k);
@@ -3642,8 +3670,23 @@ async function getValidToken(){
   save(SK.accessToken,data.access_token); save(SK.expiresAt,Date.now()+(data.expires_in*1000));
   return data.access_token;
 }
+function startDemo(){
+  isDemoMode = true;
+  dropboxFiles = DEMO_FILES;
+  // reset demo session data so scores don't persist
+  sessionLog = [];
+  streak = 0;
+  lastSessionDate = null;
+  weekDone = { week: getWeekId(), count: 0 };
+  showApp();
+  setDbStatus('connected', `<strong>${DEMO_FILES.length} ideas</strong> ready`);
+  document.getElementById('rollBtn').disabled = false;
+  renderSongs();
+}
+
 function disconnect(){
   if(!confirm('Disconnect Dropbox?'))return;
+  isDemoMode = false;
   del(SK.accessToken);del(SK.refreshToken);del(SK.expiresAt);
   document.getElementById('mainApp').style.display='none';
   document.getElementById('logStrip').style.display='none';
@@ -3672,6 +3715,7 @@ async function loadDropboxFiles(){
   }catch(e){setDbStatus('error',`Sync failed: ${e.message}`);showToast('Dropbox sync failed','red');}
 }
 async function getStreamUrl(path){
+  if(isDemoMode) return path;
   const token=await getValidToken();
   const res=await fetch('https://api.dropboxapi.com/2/files/get_temporary_link',{method:'POST',headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({path})});
   if(!res.ok)throw new Error('Could not get streaming link');
@@ -4765,11 +4809,11 @@ function endSession(isKO,elapsed){
   stopWalkCycle();
   stopFightQuoteTicker();
   const entry={date:new Date().toISOString(),song:cleanName(currentSession.file),modifier:currentSession.modifier,ko:isKO,elapsed};
-  sessionLog.push(entry);save(SK.log,sessionLog);
+  sessionLog.push(entry);if(!isDemoMode)save(SK.log,sessionLog);
   const today=new Date().toDateString();
-  if(lastSessionDate!==today){streak++;lastSessionDate=today;save(SK.streak,streak);save(SK.lastSession,lastSessionDate);}
+  if(lastSessionDate!==today){streak++;lastSessionDate=today;if(!isDemoMode){save(SK.streak,streak);save(SK.lastSession,lastSessionDate);}}
   if(weekDone.week!==getWeekId())weekDone={week:getWeekId(),count:0};
-  weekDone.count=Math.min(weekDone.count+1,3);save(SK.weekDone,weekDone);
+  weekDone.count=Math.min(weekDone.count+1,3);if(!isDemoMode)save(SK.weekDone,weekDone);
   document.getElementById('fightArena').classList.remove('visible');
   showResult(isKO,elapsed,entry.song);
   currentSession=null;pendingFile=null;audioLoaded=false;
