@@ -379,7 +379,7 @@ body {
   margin: 0 -1.8rem;
 }
 
-.scoreboard-title { font-size: 0.48rem; color: #000; letter-spacing: 0.12em; }
+.scoreboard-title { font-size: 0.48rem; color: #000; letter-spacing: 0.12em; display: flex; align-items: center; gap: 0.5rem; line-height: 1; }
 .scoreboard-sub { font-size: 0.48rem; color: rgba(0,0,0,0.7); margin-top: 3px; }
 .scoreboard-body { padding: 0.8rem 0; overflow-y: auto; }
 .score-row {
@@ -675,7 +675,7 @@ body {
   <!-- SCOREBOARD -->
   <div class="log-strip" id="logStrip" style="display:none;">
     <div class="scoreboard-header">
-      <div class="scoreboard-title">★ HIGH SCORES ★</div>
+      <div class="scoreboard-title"><span>★</span> HIGH SCORES <span>★</span></div>
       <div class="scoreboard-sub">ALL TIME · KO RANKINGS</div>
     </div>
     <div class="scoreboard-body" id="scoreList"></div>
