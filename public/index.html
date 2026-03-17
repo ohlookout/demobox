@@ -440,10 +440,10 @@ body {
 .jumbotron-clock.danger { color: #fff; text-shadow: 2px 2px 0 var(--orange), 0 0 30px var(--orange); animation: clockPulse 0.5s infinite; }
 @keyframes clockPulse { 0%,100%{opacity:1;}50%{opacity:0.5;} }
 .jumbotron-song { font-family: 'Press Start 2P', monospace; font-size: 0.38rem; color: var(--text3); letter-spacing: 0.06em; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.5rem; }
-.fight-ring { display: grid; grid-template-columns: 1fr 160px; background: #0a0805; min-height: 160px; }
-.fighter-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0.6rem 0.8rem; gap: 0.4rem; }
+.fight-ring { display: grid; grid-template-columns: 1fr 160px; background: #000; min-height: 160px; }
+.fighter-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0.6rem 0.8rem; gap: 0.4rem; background: #000; }
 .fighter-name { font-family: 'Press Start 2P', monospace; font-size: 0.35rem; color: var(--orange); letter-spacing: 0.1em; }
-.trainer-card { background: #0f0b08; border-left: 2px solid var(--orange); padding: 0.8rem 0.7rem; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; }
+.trainer-card { background: #000; border-left: 2px solid var(--orange); padding: 0.8rem 0.7rem; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; }
 .trainer-label { font-family: 'Press Start 2P', monospace; font-size: 0.3rem; color: var(--orange); letter-spacing: 0.1em; margin-bottom: 0.2rem; }
 .trainer-text { font-family: 'Press Start 2P', monospace; font-size: 0.33rem; color: var(--cream); line-height: 2; }
 .ko-row { padding: 0.7rem 0.8rem; border-top: 2px solid var(--orange); background: #000; display: flex; gap: 0.6rem; }
@@ -701,7 +701,7 @@ body {
 <script>
 
 const APP_KEY     = 'ibgqh7z9tfi9rrk';
-const AUTH_URL    = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code&redirect_uri=https://demobox-jp.netlify.app/callback&token_access_type=offline`;
+const AUTH_URL    = `https://www.dropbox.com/oauth2/authorize?client_id=${APP_KEY}&response_type=code&redirect_uri=https://demoboxing.com/callback&token_access_type=offline`;
 const FOLDER_PATH = '/Musics/_DEMOBOX/DemoMachineApp';
 const AUDIO_EXTS  = ['mp3','wav','m4a','aiff','aif','flac','ogg','wma','opus'];
 const FIGHT_SECS  = 90 * 60;
