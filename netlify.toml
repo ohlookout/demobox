@@ -11,3 +11,4 @@
   from = "/refresh"
   to = "/.netlify/functions/refresh"
   status = 200
+ 
