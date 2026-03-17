@@ -1,5 +1,5 @@
 const DROPBOX_APP_KEY    = 'ibgqh7z9tfi9rrk';
-const DROPBOX_APP_SECRET = 'smpgjd7y3bxoupc';
+const DROPBOX_APP_SECRET = 't6329pp4my29sl0';
 const REDIRECT_URI = 'https://demoboxing.com/callback';
 
 
