@@ -3717,7 +3717,6 @@ async function loadDropboxFiles(){
 async function getStreamUrl(path){
   if(isDemoMode) {
     const url = path.split('/').map((s,i) => i === 0 ? s : encodeURIComponent(s)).join('/');
-    console.log('Demo audio URL:', url);
     return url;
   }
   const token=await getValidToken();
