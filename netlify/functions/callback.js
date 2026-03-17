@@ -1,6 +1,7 @@
-const DROPBOX_APP_KEY    = 'hsh02lulfgjcug6';
+const DROPBOX_APP_KEY    = 'ibgqh7z9tfi9rrk';
 const DROPBOX_APP_SECRET = 'smpgjd7y3bxoupc';
-const REDIRECT_URI       = 'https://demobox-jp.netlify.app/callback';
+const REDIRECT_URI = 'https://demoboxing.com/callback';
+
 
 exports.handler = async (event) => {
   const code = event.queryStringParameters && event.queryStringParameters.code;
